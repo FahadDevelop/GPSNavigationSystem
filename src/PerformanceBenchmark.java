@@ -7,6 +7,6 @@ public class PerformanceBenchmark {
         searchTask.run();
         long end = System.nanoTime();
         long duration = end - start;
-        System.out.printf("| %-25s | %-18d ns |\n", label, duration);
+        System.out.printf("%s: %d ns\n", label, duration);
     }
 }

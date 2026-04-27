@@ -3,8 +3,19 @@ import java.util.*;
 // Finds shortest paths in the graph
 public class Pathfinder {
 
-    // Finds shortest distance from startId to endId using Dijkstra's Algorithm
-    public static double findShortestDistanceDijkstra(Graph graph, String startId, String endId) {
+    // Result holds the path and total distance
+    public static class PathResult {
+        public final List<Edge> path;
+        public final double totalWeight;
+
+        public PathResult(List<Edge> path, double totalWeight) {
+            this.path = path;
+            this.totalWeight = totalWeight;
+        }
+    }
+
+    // Finds the shortest path using Dijkstra; returns the actual sequence of edges
+    public static PathResult findShortestPathDijkstra(Graph graph, String startId, String endId) {
         Node start = graph.getNode(startId);
         Node end = graph.getNode(endId);
 
@@ -13,6 +24,7 @@ public class Pathfinder {
         }
 
         Map<Node, Double> distance = new HashMap<>();
+        Map<Node, Edge> previousEdge = new HashMap<>();
         Set<Node> visited = new HashSet<>();
         PriorityQueue<NodeDistance> queue = new PriorityQueue<>(Comparator.comparingDouble(nd -> nd.dist));
 
@@ -38,20 +50,29 @@ public class Pathfinder {
 
                 if (newDist < distance.get(neighbor)) {
                     distance.put(neighbor, newDist);
+                    previousEdge.put(neighbor, edge);
                     queue.add(new NodeDistance(neighbor, newDist));
                 }
             }
         }
 
-        double result = distance.get(end);
-        if (Double.isInfinite(result)) {
+        // Build path by walking predecessors
+        if (distance.get(end) == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("End node is unreachable from start node.");
         }
-        return result;
+        List<Edge> path = new ArrayList<>();
+        Node curr = end;
+        while (!curr.equals(start)) {
+            Edge edge = previousEdge.get(curr);
+            if (edge == null) break;
+            path.add(0, edge);
+            curr = edge.getSource();
+        }
+        return new PathResult(path, distance.get(end));
     }
 
-    // Finds shortest distance from startId to endId using A* Search Algorithm
-    public static double findShortestDistanceAStar(Graph graph, String startId, String endId) {
+    // Finds shortest path using A*; returns the actual sequence of edges
+    public static PathResult findShortestPathAStar(Graph graph, String startId, String endId) {
         Node start = graph.getNode(startId);
         Node end = graph.getNode(endId);
 
@@ -61,6 +82,7 @@ public class Pathfinder {
 
         Map<Node, Double> gScore = new HashMap<>();
         Map<Node, Double> fScore = new HashMap<>();
+        Map<Node, Edge> previousEdge = new HashMap<>();
         Set<Node> visited = new HashSet<>();
         PriorityQueue<NodeDistance> queue = new PriorityQueue<>(Comparator.comparingDouble(nd -> nd.dist));
 
@@ -90,16 +112,24 @@ public class Pathfinder {
                     gScore.put(neighbor, tentativeG);
                     double heuristic = haversine(neighbor, end);
                     fScore.put(neighbor, tentativeG + heuristic);
+                    previousEdge.put(neighbor, edge);
                     queue.add(new NodeDistance(neighbor, fScore.get(neighbor)));
                 }
             }
         }
 
-        double result = gScore.get(end);
-        if (Double.isInfinite(result)) {
+        if (gScore.get(end) == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("End node is unreachable from start node.");
         }
-        return result;
+        List<Edge> path = new ArrayList<>();
+        Node curr = end;
+        while (!curr.equals(start)) {
+            Edge edge = previousEdge.get(curr);
+            if (edge == null) break;
+            path.add(0, edge);
+            curr = edge.getSource();
+        }
+        return new PathResult(path, gScore.get(end));
     }
 
     // Haversine distance formula (in kilometers)

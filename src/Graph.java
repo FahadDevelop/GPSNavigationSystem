@@ -4,10 +4,12 @@ import java.util.*;
 public class Graph {
     private final Map<String, Node> nodesById;
     private final Map<Node, List<Edge>> adjacencyList;
+    private final Map<Integer, Edge> edgeById; // Map edge IDs for fast lookup
 
     public Graph() {
         nodesById = new HashMap<>();
         adjacencyList = new HashMap<>();
+        edgeById = new HashMap<>();
     }
 
     // Add a node to the graph
@@ -17,36 +19,29 @@ public class Graph {
     }
 
     // Add a directed edge between two nodes
-    public void addEdge(String sourceId, String targetId, double weight) {
-        Node source = nodesById.get(sourceId);
-        Node target = nodesById.get(targetId);
-        if (source == null || target == null) {
-            throw new IllegalArgumentException("Source or target node not found.");
-        }
-        adjacencyList.get(source).add(new Edge(source, target, weight));
+    public void addEdge(String sourceId, String targetId, double baseDistance) {
+        addEdge(sourceId, targetId, baseDistance, 1.0); // Default: trafficFactor = 1.0 (clear)
     }
 
-    // Update road weight between two nodes
-    public void updateRoadWeight(String sourceId, String targetId, double newWeight) {
+    // Overload to allow initial trafficFactor
+    public void addEdge(String sourceId, String targetId, double baseDistance, double trafficFactor) {
         Node source = nodesById.get(sourceId);
         Node target = nodesById.get(targetId);
         if (source == null || target == null) {
             throw new IllegalArgumentException("Source or target node not found.");
         }
-        List<Edge> edges = adjacencyList.get(source);
-        boolean edgeFound = false;
-        for (Edge edge : edges) {
-            if (edge.getTarget().equals(target)) {
-                // Remove old edge and add updated one (Edge is immutable)
-                edges.remove(edge);
-                edges.add(new Edge(source, target, newWeight));
-                edgeFound = true;
-                break;
-            }
+        Edge edge = new Edge(source, target, baseDistance, trafficFactor);
+        adjacencyList.get(source).add(edge);
+        edgeById.put(edge.getId(), edge);
+    }
+
+    // Update the traffic factor of an edge by edge ID
+    public void updateTraffic(int edgeId, double newTrafficFactor) {
+        Edge edge = edgeById.get(edgeId);
+        if (edge == null) {
+            throw new IllegalArgumentException("Edge with ID " + edgeId + " not found.");
         }
-        if (!edgeFound) {
-            throw new RuntimeException("Edge not found between nodes.");
-        }
+        edge.updateTraffic(newTrafficFactor);
     }
 
     // Get a node by its ID
@@ -62,5 +57,15 @@ public class Graph {
     // Get all nodes in the graph
     public Collection<Node> getAllNodes() {
         return nodesById.values();
+    }
+
+    // Get all edges in the graph
+    public Collection<Edge> getAllEdges() {
+        return edgeById.values();
+    }
+
+    // Optionally, get edge by ID
+    public Edge getEdge(int edgeId) {
+        return edgeById.get(edgeId);
     }
 }

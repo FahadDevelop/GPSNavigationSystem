@@ -1,13 +1,10 @@
 import java.util.*;
 
-// Represents the road network using an adjacency list.
+// Represents the road network using an adjacency list
 public class Graph {
-    // Map node IDs to Node objects for fast lookup
     private final Map<String, Node> nodesById;
-    // Stores outgoing edges for each node
     private final Map<Node, List<Edge>> adjacencyList;
 
-    // Create an empty graph
     public Graph() {
         nodesById = new HashMap<>();
         adjacencyList = new HashMap<>();
@@ -27,6 +24,29 @@ public class Graph {
             throw new IllegalArgumentException("Source or target node not found.");
         }
         adjacencyList.get(source).add(new Edge(source, target, weight));
+    }
+
+    // Update road weight between two nodes
+    public void updateRoadWeight(String sourceId, String targetId, double newWeight) {
+        Node source = nodesById.get(sourceId);
+        Node target = nodesById.get(targetId);
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Source or target node not found.");
+        }
+        List<Edge> edges = adjacencyList.get(source);
+        boolean edgeFound = false;
+        for (Edge edge : edges) {
+            if (edge.getTarget().equals(target)) {
+                // Remove old edge and add updated one (Edge is immutable)
+                edges.remove(edge);
+                edges.add(new Edge(source, target, newWeight));
+                edgeFound = true;
+                break;
+            }
+        }
+        if (!edgeFound) {
+            throw new RuntimeException("Edge not found between nodes.");
+        }
     }
 
     // Get a node by its ID

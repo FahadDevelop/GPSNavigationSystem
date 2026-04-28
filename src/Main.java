@@ -61,12 +61,14 @@ public class Main {
      * @param graph The graph
      */
     private static void getEdges(Graph graph) {
-        System.out.println("ID   From   To     BaseDist   TrafficFactor   Weight");
+        System.out.println("ID   From                    To                      BaseDist   TrafficFactor   Weight");
         for (Edge edge : graph.getAllEdges()) {
-            System.out.printf("%-4d %-6s %-6s %-10.2f %-15.2f %-8.2f\n",
+            String from = edge.getSource().getName() + " (" + edge.getSource().getId() + ")";
+            String to = edge.getTarget().getName() + " (" + edge.getTarget().getId() + ")";
+            System.out.printf("%-4d %-23s %-23s %-10.2f %-15.2f %-8.2f\n",
                 edge.getId(),
-                edge.getSource().getId(),
-                edge.getTarget().getId(),
+                from,
+                to,
                 edge.getBaseDistance(),
                 edge.getTrafficFactor(),
                 edge.getWeight());

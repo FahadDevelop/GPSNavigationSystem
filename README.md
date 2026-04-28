@@ -13,19 +13,24 @@
     javac -d bin src/*.java
     ```
 
-2. Run the program:
+2. Package everything into a JAR:
     ```
-    java -cp bin Main
+    jar cfm GPSNavigationSystem.jar manifest.txt -C bin .
+    ```
+
+3. Run the JAR file:
+    ```
+    java -jar GPSNavigationSystem.jar
     ```
 
 ### Features
 
 - Graph data model using adjacency list
 - Dijkstra's and A* pathfinding algorithms
-- Performance benchmark table (nanoseconds)
+- Performance benchmark in nanoseconds
 - Simple console-based interface
 
 ### Usage
 
-- Enter valid start and end node IDs when prompted (A, B, C, D).
-- View shortest path distances and execution time for each algorithm.
+- Enter valid start and end node IDs when prompted.
+- View shortest path distances, alternate route path and execution time for the given algorithm.

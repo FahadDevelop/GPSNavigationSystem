@@ -1,7 +1,13 @@
-// Measures and outputs execution time in nanoseconds
+/**
+ * Measures and outputs execution time in nanoseconds.
+ */
 public class PerformanceBenchmark {
 
-    // Records and prints execution time for a search task
+    /**
+     * Records and prints execution time for a search task.
+     * @param label Name of the task
+     * @param searchTask Task to run
+     */
     public static void benchmark(String label, Runnable searchTask) {
         long start = System.nanoTime();
         searchTask.run();

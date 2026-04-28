@@ -1,11 +1,19 @@
-// Represents a location in the GPS Navigation system.
+/**
+ * Represents a location in the GPS Navigation system.
+ */
 public class Node {
-    private final String id;       // Unique ID of the location
-    private final String name;     // Name of the location
-    private final double latitude; // Latitude coordinate
-    private final double longitude;// Longitude coordinate
+    private final String id;       // Unique ID
+    private final String name;     // Location name
+    private final double latitude; // Latitude
+    private final double longitude;// Longitude
 
-    // Constructor to create a node
+    /**
+     * Creates a node.
+     * @param id Node ID
+     * @param name Node name
+     * @param latitude Latitude
+     * @param longitude Longitude
+     */
     public Node(String id, String name, double latitude, double longitude) {
         this.id = id;
         this.name = name;
@@ -13,12 +21,18 @@ public class Node {
         this.longitude = longitude;
     }
 
+    /** @return Node ID */
     public String getId() { return id; }
+    /** @return Node name */
     public String getName() { return name; }
+    /** @return Latitude */
     public double getLatitude() { return latitude; }
+    /** @return Longitude */
     public double getLongitude() { return longitude; }
 
-    // Two nodes are equal if their IDs are equal
+    /**
+     * Two nodes are equal if their IDs are equal.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

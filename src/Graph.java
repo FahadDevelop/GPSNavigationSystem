@@ -1,29 +1,46 @@
 import java.util.*;
 
-// Represents the road network using an adjacency list
+/**
+ * Represents the road network using an adjacency list.
+ */
 public class Graph {
-    private final Map<String, Node> nodesById;
-    private final Map<Node, List<Edge>> adjacencyList;
-    private final Map<Integer, Edge> edgeById; // Map edge IDs for fast lookup
+    private final Map<String, Node> nodesById;      // Node lookup by ID
+    private final Map<Node, List<Edge>> adjacencyList; // Outgoing edges for each node
+    private final Map<Integer, Edge> edgeById;      // Edge lookup by ID
 
+    /** Creates an empty graph. */
     public Graph() {
         nodesById = new HashMap<>();
         adjacencyList = new HashMap<>();
         edgeById = new HashMap<>();
     }
 
-    // Add a node to the graph
+    /**
+     * Adds a node to the graph.
+     * @param node Node to add
+     */
     public void addNode(Node node) {
         nodesById.put(node.getId(), node);
         adjacencyList.putIfAbsent(node, new ArrayList<>());
     }
 
-    // Add a directed edge between two nodes
+    /**
+     * Adds a directed edge with default traffic factor.
+     * @param sourceId Source node ID
+     * @param targetId Target node ID
+     * @param baseDistance Distance
+     */
     public void addEdge(String sourceId, String targetId, double baseDistance) {
-        addEdge(sourceId, targetId, baseDistance, 1.0); // Default: trafficFactor = 1.0 (clear)
+        addEdge(sourceId, targetId, baseDistance, 1.0);
     }
 
-    // Overload to allow initial trafficFactor
+    /**
+     * Adds a directed edge with specified traffic factor.
+     * @param sourceId Source node ID
+     * @param targetId Target node ID
+     * @param baseDistance Distance
+     * @param trafficFactor Traffic multiplier
+     */
     public void addEdge(String sourceId, String targetId, double baseDistance, double trafficFactor) {
         Node source = nodesById.get(sourceId);
         Node target = nodesById.get(targetId);
@@ -35,7 +52,11 @@ public class Graph {
         edgeById.put(edge.getId(), edge);
     }
 
-    // Update the traffic factor of an edge by edge ID
+    /**
+     * Updates the traffic factor of an edge by edge ID.
+     * @param edgeId Edge ID
+     * @param newTrafficFactor New traffic multiplier
+     */
     public void updateTraffic(int edgeId, double newTrafficFactor) {
         Edge edge = edgeById.get(edgeId);
         if (edge == null) {
@@ -44,27 +65,39 @@ public class Graph {
         edge.updateTraffic(newTrafficFactor);
     }
 
-    // Get a node by its ID
+    /**
+     * Gets a node by its ID.
+     * @param id Node ID
+     * @return Node or null
+     */
     public Node getNode(String id) {
         return nodesById.get(id);
     }
 
-    // Get outgoing edges from a node
+    /**
+     * Gets outgoing edges from a node.
+     * @param node Node
+     * @return List of edges
+     */
     public List<Edge> getEdges(Node node) {
         return adjacencyList.getOrDefault(node, Collections.emptyList());
     }
 
-    // Get all nodes in the graph
+    /** @return All nodes in the graph */
     public Collection<Node> getAllNodes() {
         return nodesById.values();
     }
 
-    // Get all edges in the graph
+    /** @return All edges in the graph */
     public Collection<Edge> getAllEdges() {
         return edgeById.values();
     }
 
-    // Optionally, get edge by ID
+    /**
+     * Gets an edge by its ID.
+     * @param edgeId Edge ID
+     * @return Edge or null
+     */
     public Edge getEdge(int edgeId) {
         return edgeById.get(edgeId);
     }

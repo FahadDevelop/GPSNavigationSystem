@@ -1,9 +1,13 @@
 import java.util.*;
 
-// Finds shortest paths in the graph
+/**
+ * Provides shortest path and alternative route finding algorithms for the graph.
+ */
 public class Pathfinder {
 
-    // Result holds the path and total distance
+    /**
+     * Holds the path and total distance.
+     */
     public static class PathResult {
         public final List<Edge> path;
         public final double totalWeight;
@@ -14,8 +18,9 @@ public class Pathfinder {
         }
     }
 
-    // Finds both the primary and an alternative route between two nodes.
-    // The alternative route avoids the most "critical" edge (highest traffic factor) in the primary path.
+    /**
+     * Holds both the primary and alternative routes.
+     */
     public static class AlternativeRoutesResult {
         public final PathResult primary;
         public final PathResult alternative;
@@ -26,7 +31,13 @@ public class Pathfinder {
         }
     }
 
-    // Finds the shortest path using Dijkstra; returns the actual sequence of edges
+    /**
+     * Finds the shortest path using Dijkstra's algorithm.
+     * @param graph The graph
+     * @param startId Start node ID
+     * @param endId End node ID
+     * @return PathResult with path and total weight
+     */
     public static PathResult findShortestPathDijkstra(Graph graph, String startId, String endId) {
         Node start = graph.getNode(startId);
         Node end = graph.getNode(endId);
@@ -40,6 +51,7 @@ public class Pathfinder {
         Set<Node> visited = new HashSet<>();
         PriorityQueue<NodeDistance> queue = new PriorityQueue<>(Comparator.comparingDouble(nd -> nd.dist));
 
+        // Initialize distances
         for (Node node : graph.getAllNodes()) {
             distance.put(node, Double.POSITIVE_INFINITY);
         }
@@ -54,6 +66,7 @@ public class Pathfinder {
             if (!visited.add(currNode)) continue;
             if (currNode.equals(end)) break;
 
+            // Check all neighbors
             for (Edge edge : graph.getEdges(currNode)) {
                 Node neighbor = edge.getTarget();
                 if (visited.contains(neighbor)) continue;
@@ -83,7 +96,13 @@ public class Pathfinder {
         return new PathResult(path, distance.get(end));
     }
 
-    // Finds shortest path using A*; returns the actual sequence of edges
+    /**
+     * Finds the shortest path using A* algorithm.
+     * @param graph The graph
+     * @param startId Start node ID
+     * @param endId End node ID
+     * @return PathResult with path and total weight
+     */
     public static PathResult findShortestPathAStar(Graph graph, String startId, String endId) {
         Node start = graph.getNode(startId);
         Node end = graph.getNode(endId);
@@ -98,6 +117,7 @@ public class Pathfinder {
         Set<Node> visited = new HashSet<>();
         PriorityQueue<NodeDistance> queue = new PriorityQueue<>(Comparator.comparingDouble(nd -> nd.dist));
 
+        // Initialize scores
         for (Node node : graph.getAllNodes()) {
             gScore.put(node, Double.POSITIVE_INFINITY);
             fScore.put(node, Double.POSITIVE_INFINITY);
@@ -114,6 +134,7 @@ public class Pathfinder {
             if (!visited.add(currNode)) continue;
             if (currNode.equals(end)) break;
 
+            // Check all neighbors
             for (Edge edge : graph.getEdges(currNode)) {
                 Node neighbor = edge.getTarget();
                 if (visited.contains(neighbor)) continue;
@@ -144,7 +165,15 @@ public class Pathfinder {
         return new PathResult(path, gScore.get(end));
     }
 
-    // Finds alternative routes using Dijkstra or A* (method: "dijkstra" or "astar")
+    /**
+     * Finds both the primary and an alternative route between two nodes.
+     * The alternative avoids the edge with the highest traffic factor in the primary path.
+     * @param graph The graph
+     * @param startId Start node ID
+     * @param endId End node ID
+     * @param method "dijkstra" or "astar"
+     * @return AlternativeRoutesResult with both routes
+     */
     public static AlternativeRoutesResult findAlternativeRoutes(
             Graph graph, String startId, String endId, String method) {
 
@@ -159,7 +188,7 @@ public class Pathfinder {
             return new AlternativeRoutesResult(primary, null);
         }
 
-        // Identify the most critical edge (highest traffic factor) in the primary path
+        // Find the edge with the highest traffic factor
         Edge criticalEdge = null;
         double maxTraffic = -1;
         for (Edge edge : primary.path) {
@@ -170,13 +199,12 @@ public class Pathfinder {
         }
 
         if (criticalEdge == null) {
-            // No alternative possible
             return new AlternativeRoutesResult(primary, null);
         }
 
-        // Temporarily penalize the critical edge
+        // Temporarily set the critical edge's traffic very high
         double originalTraffic = criticalEdge.getTrafficFactor();
-        criticalEdge.updateTraffic(1e6); // Set to a very high traffic factor
+        criticalEdge.updateTraffic(1e6);
 
         PathResult alternative = null;
         try {
@@ -185,21 +213,26 @@ public class Pathfinder {
             } else {
                 alternative = findShortestPathDijkstra(graph, startId, endId);
             }
-            // If the alternative path still uses the critical edge, treat as no alternative
+            // If still uses the critical edge, no alternative
             if (alternative.path != null && alternative.path.contains(criticalEdge)) {
                 alternative = null;
             }
         } catch (RuntimeException e) {
             alternative = null;
         } finally {
-            // Restore the original traffic factor
+            // Restore original traffic factor
             criticalEdge.updateTraffic(originalTraffic);
         }
 
         return new AlternativeRoutesResult(primary, alternative);
     }
 
-    // Haversine distance formula (in kilometers)
+    /**
+     * Calculates the Haversine distance between two nodes.
+     * @param a First node
+     * @param b Second node
+     * @return Distance in kilometers
+     */
     private static double haversine(Node a, Node b) {
         final int R = 6371; // Earth radius in kilometers
         double lat1 = Math.toRadians(a.getLatitude());

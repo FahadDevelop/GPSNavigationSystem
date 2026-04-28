@@ -5,8 +5,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-// Main application for GPS Navigation
+/**
+ * Main application for the GPS Navigation System.
+ * Provides a console-based user interface.
+ */
 public class Main {
+
+    /**
+     * Reads an integer from the user with prompt and validation.
+     * @param scanner Scanner for input
+     * @param output Prompt message
+     * @return Valid integer input
+     */
     public static int intInput(Scanner scanner, String output) {
         while (true) {
             System.out.print(output);
@@ -19,6 +29,12 @@ public class Main {
         }
     }
 
+    /**
+     * Reads a double from the user with prompt and validation.
+     * @param scanner Scanner for input
+     * @param output Prompt message
+     * @return Valid double input
+     */
     public static double doubleInput(Scanner scanner, String output) {
         while (true) {
             System.out.print(output);
@@ -31,11 +47,19 @@ public class Main {
         }
     }
 
+    /**
+     * Waits for the user to press Enter to return to the menu.
+     * @param scanner Scanner for input
+     */
     public static void returnMenu(Scanner scanner) {
         System.out.print("\nPress Enter to return...");
         scanner.nextLine();
     }
 
+    /**
+     * Prints all edges in the graph.
+     * @param graph The graph
+     */
     private static void getEdges(Graph graph) {
         System.out.println("ID   From   To     BaseDist   TrafficFactor   Weight");
         for (Edge edge : graph.getAllEdges()) {
@@ -49,7 +73,10 @@ public class Main {
         }
     }
 
-    // Prints each segment (edge) in the route: from, to, baseDistance, trafficFactor, and weight
+    /**
+     * Prints each segment (edge) in the route.
+     * @param route List of edges in the route
+     */
     private static void printRoute(java.util.List<Edge> route) {
         if (route == null || route.isEmpty()) {
             System.out.println("No route found.");
@@ -67,6 +94,10 @@ public class Main {
         }
     }
 
+    /**
+     * Prints the path as a sequence of node IDs.
+     * @param route List of edges in the route
+     */
     private static void printRoutePath(java.util.List<Edge> route) {
         if (route == null || route.isEmpty()) {
             System.out.println("No route found.");
@@ -80,6 +111,11 @@ public class Main {
         System.out.println("Path: " + sb.toString());
     }
 
+    /**
+     * Calculates the total base distance of a route.
+     * @param route List of edges in the route
+     * @return Total base distance
+     */
     private static double calcTotalDistance(java.util.List<Edge> route) {
         double total = 0.0;
         if (route != null) {
@@ -90,7 +126,11 @@ public class Main {
         return total;
     }
 
-    // Loads graph data from a text file
+    /**
+     * Loads graph data from a text file.
+     * @param graph The graph to populate
+     * @param filename File name to read from
+     */
     public static void loadGraphFromFile(Graph graph, String filename) {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -138,6 +178,11 @@ public class Main {
         }
     }
 
+    /**
+     * Saves the graph data to a text file.
+     * @param graph The graph to save
+     * @param filename File name to write to
+     */
     public static void saveGraphToFile(Graph graph, String filename) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
             bw.write("[NODES]\n");
@@ -156,6 +201,10 @@ public class Main {
         }
     }
 
+    /**
+     * Main entry point for the GPS Navigation System.
+     * @param args Command-line arguments
+     */
     public static void main(String[] args) {
         Graph graph = new Graph();
 

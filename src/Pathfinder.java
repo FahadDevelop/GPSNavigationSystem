@@ -14,6 +14,18 @@ public class Pathfinder {
         }
     }
 
+    // Finds both the primary and an alternative route between two nodes.
+    // The alternative route avoids the most "critical" edge (highest traffic factor) in the primary path.
+    public static class AlternativeRoutesResult {
+        public final PathResult primary;
+        public final PathResult alternative;
+
+        public AlternativeRoutesResult(PathResult primary, PathResult alternative) {
+            this.primary = primary;
+            this.alternative = alternative;
+        }
+    }
+
     // Finds the shortest path using Dijkstra; returns the actual sequence of edges
     public static PathResult findShortestPathDijkstra(Graph graph, String startId, String endId) {
         Node start = graph.getNode(startId);
@@ -130,6 +142,61 @@ public class Pathfinder {
             curr = edge.getSource();
         }
         return new PathResult(path, gScore.get(end));
+    }
+
+    // Finds alternative routes using Dijkstra or A* (method: "dijkstra" or "astar")
+    public static AlternativeRoutesResult findAlternativeRoutes(
+            Graph graph, String startId, String endId, String method) {
+
+        PathResult primary;
+        if ("astar".equalsIgnoreCase(method)) {
+            primary = findShortestPathAStar(graph, startId, endId);
+        } else {
+            primary = findShortestPathDijkstra(graph, startId, endId);
+        }
+
+        if (primary.path == null || primary.path.isEmpty()) {
+            return new AlternativeRoutesResult(primary, null);
+        }
+
+        // Identify the most critical edge (highest traffic factor) in the primary path
+        Edge criticalEdge = null;
+        double maxTraffic = -1;
+        for (Edge edge : primary.path) {
+            if (edge.getTrafficFactor() > maxTraffic) {
+                maxTraffic = edge.getTrafficFactor();
+                criticalEdge = edge;
+            }
+        }
+
+        if (criticalEdge == null) {
+            // No alternative possible
+            return new AlternativeRoutesResult(primary, null);
+        }
+
+        // Temporarily penalize the critical edge
+        double originalTraffic = criticalEdge.getTrafficFactor();
+        criticalEdge.updateTraffic(1e6); // Set to a very high traffic factor
+
+        PathResult alternative = null;
+        try {
+            if ("astar".equalsIgnoreCase(method)) {
+                alternative = findShortestPathAStar(graph, startId, endId);
+            } else {
+                alternative = findShortestPathDijkstra(graph, startId, endId);
+            }
+            // If the alternative path still uses the critical edge, treat as no alternative
+            if (alternative.path != null && alternative.path.contains(criticalEdge)) {
+                alternative = null;
+            }
+        } catch (RuntimeException e) {
+            alternative = null;
+        } finally {
+            // Restore the original traffic factor
+            criticalEdge.updateTraffic(originalTraffic);
+        }
+
+        return new AlternativeRoutesResult(primary, alternative);
     }
 
     // Haversine distance formula (in kilometers)

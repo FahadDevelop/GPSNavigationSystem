@@ -62,6 +62,16 @@ public class Main {
         }
     }
 
+    private static double calcTotalDistance(java.util.List<Edge> route) {
+        double total = 0.0;
+        if (route != null) {
+            for (Edge edge : route) {
+                total += edge.getBaseDistance();
+            }
+        }
+        return total;
+    }
+
     public static void main(String[] args) {
         Graph graph = new Graph();
 
@@ -117,12 +127,23 @@ GPS Navigation System
                     endId = scanner.nextLine().trim().toUpperCase();
                     System.out.println();
 
-                    // Dijkstra benchmark and path print
+                    // Dijkstra benchmark and path print, including alternative route
                     PerformanceBenchmark.benchmark("Dijkstra", () -> {
                         try {
-                            Pathfinder.PathResult result = Pathfinder.findShortestPathDijkstra(graph, startId, endId);
-                            System.out.println("Dijkstra Shortest Distance: " + result.totalWeight);
-                            printRoute(result.path);
+                            Pathfinder.AlternativeRoutesResult result = Pathfinder.findAlternativeRoutes(graph, startId, endId, "dijkstra");
+                            System.out.println("Primary Route:");
+                            System.out.println("Total Weighted Cost: " + String.format("%.2f", result.primary.totalWeight));
+                            System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.primary.path)));
+                            printRoute(result.primary.path);
+
+                            if (result.alternative != null) {
+                                System.out.println("\nAlternative Route:");
+                                System.out.println("Total Weighted Cost: " + String.format("%.2f", result.alternative.totalWeight));
+                                System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.alternative.path)));
+                                printRoute(result.alternative.path);
+                            } else {
+                                System.out.println("\nNo alternative route found (all routes use the most congested segment).");
+                            }
                         } catch (RuntimeException e) {
                             System.out.println("Not reachable using Dijkstra.");
                         } finally {
@@ -138,12 +159,23 @@ GPS Navigation System
                     endId = scanner.nextLine().trim().toUpperCase();
                     System.out.println();
 
-                    // A* benchmark and path print
+                    // A* benchmark and path print, including alternative route
                     PerformanceBenchmark.benchmark("A-Star", () -> {
                         try {
-                            Pathfinder.PathResult result = Pathfinder.findShortestPathAStar(graph, startId, endId);
-                            System.out.println("A* Shortest Distance: " + result.totalWeight);
-                            printRoute(result.path);
+                            Pathfinder.AlternativeRoutesResult result = Pathfinder.findAlternativeRoutes(graph, startId, endId, "astar");
+                            System.out.println("Primary Route:");
+                            System.out.println("Total Weighted Cost: " + String.format("%.2f", result.primary.totalWeight));
+                            System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.primary.path)));
+                            printRoute(result.primary.path);
+
+                            if (result.alternative != null) {
+                                System.out.println("\nAlternative Route:");
+                                System.out.println("Total Weighted Cost: " + String.format("%.2f", result.alternative.totalWeight));
+                                System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.alternative.path)));
+                                printRoute(result.alternative.path);
+                            } else {
+                                System.out.println("\nNo alternative route found (all routes use the most congested segment).");
+                            }
                         } catch (RuntimeException e) {
                             System.out.println("Not reachable using A*.");
                         } finally {

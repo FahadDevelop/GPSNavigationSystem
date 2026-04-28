@@ -10,7 +10,25 @@ A console-based Java application for finding shortest and alternative routes on 
 - [JDK 8 or higher](https://adoptopenjdk.net/)
 - Command line or terminal access
 
-**Steps to Compile & Run:**
+You can run the program using either of the two options below:
+
+### **Option 1: Compile and Run from Class Files**
+
+1. **Compile all Java source files:**
+    ```sh
+    javac -d bin src/*.java
+    ```
+
+2. **Ensure `map_data.txt` is present in the program's working directory.**
+
+3. **Run the program:**
+    ```sh
+    java -cp bin Main
+    ```
+
+---
+
+### **Option 2: Package and Run as a JAR File**
 
 1. **Compile all Java source files:**
     ```sh

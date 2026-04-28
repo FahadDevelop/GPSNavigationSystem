@@ -116,13 +116,18 @@ public class Main {
                     double lon = Double.parseDouble(parts[3].trim());
                     graph.addNode(new Node(id, name, lat, lon));
                 } else if (readingEdges) {
-                    // Format: FromID,ToID,BaseDistance
+                    // Format: FromID,ToID,BaseDistance[,TrafficFactor]
                     String[] parts = line.split(",");
-                    if (parts.length != 3) continue;
+                    if (parts.length < 3) continue;
                     String from = parts[0].trim();
                     String to = parts[1].trim();
                     double dist = Double.parseDouble(parts[2].trim());
-                    graph.addEdge(from, to, dist);
+                    if (parts.length >= 4) {
+                        double tf = Double.parseDouble(parts[3].trim());
+                        graph.addEdge(from, to, dist, tf);
+                    } else {
+                        graph.addEdge(from, to, dist);
+                    }
                 }
             }
         } catch (IOException e) {

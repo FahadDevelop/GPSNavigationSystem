@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -136,6 +138,24 @@ public class Main {
         }
     }
 
+    public static void saveGraphToFile(Graph graph, String filename) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            bw.write("[NODES]\n");
+            for (Node node : graph.getAllNodes()) {
+                bw.write(String.format("%s,%s,%.4f,%.4f\n",
+                    node.getId(), node.getName(), node.getLatitude(), node.getLongitude()));
+            }
+            bw.write("\n[EDGES]\n");
+            for (Edge edge : graph.getAllEdges()) {
+                bw.write(String.format("%s,%s,%.1f,%.1f\n",
+                    edge.getSource().getId(), edge.getTarget().getId(),
+                    edge.getBaseDistance(), edge.getTrafficFactor()));
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving map data: " + e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         Graph graph = new Graph();
 
@@ -253,6 +273,7 @@ GPS Navigation System
                     int edgeId = intInput(scanner, "Enter Edge ID to update: ");
                     double tf = doubleInput(scanner, "Enter new traffic factor (e.g., 1.0, 1.5, 2.5): ");
                     graph.updateTraffic(edgeId, tf);
+                    saveGraphToFile(graph, "map_data.txt");
                     break;
                 case 0: // Exit Program
                     scanner.close();

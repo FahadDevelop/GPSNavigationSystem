@@ -95,7 +95,7 @@ public class Main {
     }
 
     /**
-     * Prints the path as a sequence of node IDs.
+     * Prints the path as a sequence of node names and IDs.
      * @param route List of edges in the route
      */
     private static void printRoutePath(java.util.List<Edge> route) {
@@ -104,9 +104,11 @@ public class Main {
             return;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(route.get(0).getSource().getId());
+        Node prev = route.get(0).getSource();
+        sb.append(prev.getName()).append(" (").append(prev.getId()).append(")");
         for (Edge edge : route) {
-            sb.append(" -> ").append(edge.getTarget().getId());
+            Node target = edge.getTarget();
+            sb.append(" -> ").append(target.getName()).append(" (").append(target.getId()).append(")");
         }
         System.out.println("Path: " + sb.toString());
     }

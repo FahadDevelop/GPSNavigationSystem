@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 // Main application for GPS Navigation
@@ -62,6 +65,19 @@ public class Main {
         }
     }
 
+    private static void printRoutePath(java.util.List<Edge> route) {
+        if (route == null || route.isEmpty()) {
+            System.out.println("No route found.");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(route.get(0).getSource().getId());
+        for (Edge edge : route) {
+            sb.append(" -> ").append(edge.getTarget().getId());
+        }
+        System.out.println("Path: " + sb.toString());
+    }
+
     private static double calcTotalDistance(java.util.List<Edge> route) {
         double total = 0.0;
         if (route != null) {
@@ -72,20 +88,54 @@ public class Main {
         return total;
     }
 
+    // Loads graph data from a text file
+    public static void loadGraphFromFile(Graph graph, String filename) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            boolean readingNodes = false, readingEdges = false;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                if (line.equalsIgnoreCase("[NODES]")) {
+                    readingNodes = true;
+                    readingEdges = false;
+                    continue;
+                }
+                if (line.equalsIgnoreCase("[EDGES]")) {
+                    readingNodes = false;
+                    readingEdges = true;
+                    continue;
+                }
+                if (readingNodes) {
+                    // Format: ID,Name,Latitude,Longitude
+                    String[] parts = line.split(",");
+                    if (parts.length != 4) continue;
+                    String id = parts[0].trim();
+                    String name = parts[1].trim();
+                    double lat = Double.parseDouble(parts[2].trim());
+                    double lon = Double.parseDouble(parts[3].trim());
+                    graph.addNode(new Node(id, name, lat, lon));
+                } else if (readingEdges) {
+                    // Format: FromID,ToID,BaseDistance
+                    String[] parts = line.split(",");
+                    if (parts.length != 3) continue;
+                    String from = parts[0].trim();
+                    String to = parts[1].trim();
+                    double dist = Double.parseDouble(parts[2].trim());
+                    graph.addEdge(from, to, dist);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading map data: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
     public static void main(String[] args) {
         Graph graph = new Graph();
 
-        // Add sample nodes and edges
-        graph.addNode(new Node("A", "Alpha", 12.9611, 77.6387));
-        graph.addNode(new Node("B", "Bravo", 12.9722, 77.5958));
-        graph.addNode(new Node("C", "Charlie", 12.9279, 77.6271));
-        graph.addNode(new Node("D", "Delta", 12.9716, 77.5946));
-
-        graph.addEdge("A", "B", 5.4);
-        graph.addEdge("B", "C", 6.2);
-        graph.addEdge("A", "C", 12.3);
-        graph.addEdge("C", "D", 7.0);
-        graph.addEdge("B", "D", 3.4);
+        // Load graph from file
+        loadGraphFromFile(graph, "map_data.txt");
 
         Scanner scanner = new Scanner(System.in);
 
@@ -106,9 +156,9 @@ GPS Navigation System
             switch (choice) {
                 case 1: // List All Nodes
                     System.out.println("List All Nodes:\n");
-                    System.out.println("ID   Name       Latitude     Longitude");
+                    System.out.printf("%-4s %-18s %-12s %-12s\n", "ID", "Name", "Latitude", "Longitude");
                     for (Node node : graph.getAllNodes()) {
-                        System.out.printf("%-4s %-10s %-12.4f %-12.4f\n",
+                        System.out.printf("%-4s %-18s %-12.4f %-12.4f\n",
                             node.getId(),
                             node.getName(),
                             node.getLatitude(),
@@ -135,12 +185,16 @@ GPS Navigation System
                             System.out.println("Total Weighted Cost: " + String.format("%.2f", result.primary.totalWeight));
                             System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.primary.path)));
                             printRoute(result.primary.path);
+                            System.out.println();
+                            printRoutePath(result.primary.path);
 
                             if (result.alternative != null) {
                                 System.out.println("\nAlternative Route:");
                                 System.out.println("Total Weighted Cost: " + String.format("%.2f", result.alternative.totalWeight));
                                 System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.alternative.path)));
                                 printRoute(result.alternative.path);
+                                System.out.println();
+                                printRoutePath(result.alternative.path);
                             } else {
                                 System.out.println("\nNo alternative route found (all routes use the most congested segment).");
                             }
@@ -167,12 +221,16 @@ GPS Navigation System
                             System.out.println("Total Weighted Cost: " + String.format("%.2f", result.primary.totalWeight));
                             System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.primary.path)));
                             printRoute(result.primary.path);
+                            System.out.println();
+                            printRoutePath(result.primary.path);
 
                             if (result.alternative != null) {
                                 System.out.println("\nAlternative Route:");
                                 System.out.println("Total Weighted Cost: " + String.format("%.2f", result.alternative.totalWeight));
                                 System.out.println("Total Distance: " + String.format("%.2f", calcTotalDistance(result.alternative.path)));
                                 printRoute(result.alternative.path);
+                                System.out.println();
+                                printRoutePath(result.alternative.path);
                             } else {
                                 System.out.println("\nNo alternative route found (all routes use the most congested segment).");
                             }

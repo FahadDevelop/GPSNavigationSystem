@@ -16,6 +16,8 @@ public class Edge {
 
     // Constructor with traffic factor
     public Edge(Node source, Node target, double baseDistance, double trafficFactor) {
+        if (baseDistance <= 0) throw new IllegalArgumentException("Base distance must be positive.");
+        if (trafficFactor <= 0) throw new IllegalArgumentException("Traffic factor must be positive.");
         this.id = nextId++;
         this.source = source;
         this.target = target;
@@ -50,6 +52,7 @@ public class Edge {
 
     // Updates the traffic factor for this edge
     public void updateTraffic(double newTrafficFactor) {
+        if (newTrafficFactor <= 0) throw new IllegalArgumentException("Traffic factor must be positive.");
         this.trafficFactor = newTrafficFactor;
     }
 }

@@ -272,8 +272,13 @@ GPS Navigation System
                     System.out.println();
                     int edgeId = intInput(scanner, "Enter Edge ID to update: ");
                     double tf = doubleInput(scanner, "Enter new traffic factor (e.g., 1.0, 1.5, 2.5): ");
-                    graph.updateTraffic(edgeId, tf);
-                    saveGraphToFile(graph, "map_data.txt");
+                    try {
+                        graph.updateTraffic(edgeId, tf);
+                        saveGraphToFile(graph, "map_data.txt");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                        break;
+                    }
                     break;
                 case 0: // Exit Program
                     scanner.close();
